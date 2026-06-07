@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { insertCommunityReport } from "@/lib/supabase";
 import { geocodeLocation } from "@/lib/geocode";
-import type { IssueType } from "@/lib/types";
 import { MapPinIcon, PlusIcon } from "./icons";
 
 interface ReportFormProps {
@@ -20,7 +19,6 @@ export default function ReportForm({
   onTogglePickMode,
 }: ReportFormProps) {
   const [location, setLocation] = useState("");
-  const [issueType, setIssueType] = useState<IssueType>("no_power");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -54,7 +52,7 @@ export default function ReportForm({
       const timeReported = new Date().toISOString();
       await insertCommunityReport({
         location: locationName,
-        issue_type: issueType,
+        issue_type: "no_power",
         time_reported: timeReported,
         source: "user_report",
         description: description.trim() || null,
@@ -106,34 +104,6 @@ export default function ReportForm({
           Pin set on map
         </div>
       )}
-
-      <div>
-        <span className="field-label">What&apos;s happening?</span>
-        <div className="grid grid-cols-2 gap-3">
-          {(
-            [
-              ["no_power", "No power", "⚡"],
-              ["partial_outage", "Partial", "◐"],
-            ] as const
-          ).map(([value, label, emoji]) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setIssueType(value)}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-4 text-sm font-semibold transition-all ${
-                issueType === value
-                  ? "border-teal-500 bg-gradient-to-b from-teal-50 to-cyan-50 text-teal-900 shadow-sm"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-              }`}
-            >
-              <span className="text-xl" aria-hidden>
-                {emoji}
-              </span>
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <div>
         <label htmlFor="description" className="field-label">

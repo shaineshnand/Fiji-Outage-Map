@@ -16,5 +16,5 @@ export function sourceLabel(source: "user_report" | "manual"): string {
 }
 
 export function issueLabel(issue: "no_power" | "partial_outage"): string {
-  return issue === "no_power" ? "No power" : "Partial outage";
+  return issue === "partial_outage" ? "Partial outage" : "No power";
 }
