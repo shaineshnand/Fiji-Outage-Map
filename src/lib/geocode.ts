@@ -1,12 +1,11 @@
 /**
  * Geocoding = turning "Nasinu" into latitude/longitude.
- * We use Nominatim (OpenStreetMap) — free, no API key for light use.
- * Always bias search to Fiji so results stay local.
+ * Browser calls /api/geocode (Nominatim blocks direct browser requests).
  */
 
 const FIJI_VIEWBOX = "176.0,-20.5,180.0,-16.0";
 
-export async function geocodeLocation(
+export async function geocodeLocationFromNominatim(
   query: string
 ): Promise<{ lat: number; lng: number; displayName: string } | null> {
   const params = new URLSearchParams({
@@ -38,6 +37,23 @@ export async function geocodeLocation(
     lng: parseFloat(results[0].lon),
     displayName: results[0].display_name.split(",")[0],
   };
+}
+
+/** Client-safe geocode via our API route */
+export async function geocodeLocation(
+  query: string
+): Promise<{ lat: number; lng: number; displayName: string } | null> {
+  const params = new URLSearchParams({ q: query });
+  const res = await fetch(`/api/geocode?${params}`);
+
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as {
+    ok: boolean;
+    result?: { lat: number; lng: number; displayName: string };
+  };
+
+  return data.ok && data.result ? data.result : null;
 }
 
 /** Known Fiji place names — useful for crawler text parsing */

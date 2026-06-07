@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { insertCommunityReport } from "@/lib/supabase";
 import { geocodeLocation } from "@/lib/geocode";
+import { formatMapPinLabel } from "@/lib/format";
 import { MapPinIcon, PlusIcon } from "./icons";
 
 interface ReportFormProps {
@@ -38,7 +39,11 @@ export default function ReportForm({
         return;
       }
 
-      if (!lat || !lng) {
+      if (lat == null || lng == null) {
+        if (!locationName) {
+          setMessage("Enter a location or pick a point on the map.");
+          return;
+        }
         const geo = await geocodeLocation(locationName);
         if (!geo) {
           setMessage("Location not found in Fiji. Try another name or use the map.");
@@ -49,11 +54,14 @@ export default function ReportForm({
         if (!locationName) locationName = geo.displayName;
       }
 
-      const timeReported = new Date().toISOString();
+      if (!locationName) {
+        locationName = formatMapPinLabel(lat, lng);
+      }
+
       await insertCommunityReport({
         location: locationName,
         issue_type: "no_power",
-        time_reported: timeReported,
+        time_reported: new Date().toISOString(),
         source: "user_report",
         description: description.trim() || null,
         latitude: lat,
@@ -101,7 +109,7 @@ export default function ReportForm({
       {pickedPosition && (
         <div className="flex items-center gap-2 rounded-lg bg-teal-50 px-3 py-2.5 text-sm text-teal-800 ring-1 ring-teal-100">
           <MapPinIcon className="h-4 w-4 shrink-0" />
-          Pin set on map
+          Pin set — {formatMapPinLabel(pickedPosition.lat, pickedPosition.lng)}
         </div>
       )}
 

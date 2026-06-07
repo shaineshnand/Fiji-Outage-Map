@@ -109,7 +109,9 @@ export default function HomePage() {
                   )}
                 </div>
               </div>
-              <div className="map-frame h-[52vh] min-h-[320px] lg:h-[calc(100vh-16rem)] lg:min-h-[500px]">
+              <div
+                className={`map-frame h-[52vh] min-h-[320px] lg:h-[calc(100vh-16rem)] lg:min-h-[500px]${pickMode ? " map-pick-mode" : ""}`}
+              >
                 <OutageMap
                   features={mapFeatures}
                   pickMode={pickMode}
@@ -158,7 +160,11 @@ export default function HomePage() {
                   icon={<ReportIcon />}
                 >
                   <ReportForm
-                    onSuccess={refresh}
+                    onSuccess={() => {
+                      refresh();
+                      setPickedPosition(null);
+                      setPickMode(false);
+                    }}
                     pickedPosition={pickedPosition}
                     pickMode={pickMode}
                     onTogglePickMode={() => setPickMode((v) => !v)}

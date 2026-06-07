@@ -18,3 +18,7 @@ export function sourceLabel(source: "user_report" | "manual"): string {
 export function issueLabel(issue: "no_power" | "partial_outage"): string {
   return issue === "partial_outage" ? "Partial outage" : "No power";
 }
+
+export function formatMapPinLabel(lat: number, lng: number): string {
+  return `Map pin (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`;
+}

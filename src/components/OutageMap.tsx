@@ -136,11 +136,8 @@ export default function OutageMap({
         <Marker
           position={[pickedPosition.lat, pickedPosition.lng]}
           icon={createPickedIcon()}
-        >
-          <Popup>
-            <span className="map-popup-title">Selected location</span>
-          </Popup>
-        </Marker>
+          interactive={false}
+        />
       )}
       {spreadOverlappingMarkers(
         features.filter((f) => isInsideFiji(f.latitude, f.longitude))
@@ -151,6 +148,7 @@ export default function OutageMap({
               key={`${f.kind}-${f.id}`}
               position={[f.latitude, f.longitude]}
               icon={createLayerIcon(layer)}
+              interactive={!pickMode}
             >
               <Popup>
                 <div>
