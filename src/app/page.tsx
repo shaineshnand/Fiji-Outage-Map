@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useOutageIntel } from "@/hooks/useOutageIntel";
 import OutageMap from "@/components/MapLoader";
 import ReportForm from "@/components/ReportForm";
@@ -48,11 +48,24 @@ export default function HomePage() {
     supabaseConfigured,
   } = useOutageIntel();
 
+  const mapSectionRef = useRef<HTMLDivElement>(null);
   const [pickMode, setPickMode] = useState(false);
   const [pickedPosition, setPickedPosition] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
+
+  function togglePickMode() {
+    setPickMode((active) => {
+      const next = !active;
+      if (next) {
+        requestAnimationFrame(() => {
+          mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+      return next;
+    });
+  }
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("report");
   const [feedFilter, setFeedFilter] = useState<FeedFilter>("all");
 
@@ -88,7 +101,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-12">
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7" ref={mapSectionRef}>
             <Panel
               title="Live outage map"
               subtitle="Tap markers for details · Fiji only"
@@ -104,7 +117,12 @@ export default function HomePage() {
                   </span>
                   {pickMode && (
                     <span className="rounded-full bg-teal-100 px-3 py-1 font-semibold text-teal-800 animate-pulse">
-                      Tap map to set location
+                      Tap anywhere on the map (empty area)
+                    </span>
+                  )}
+                  {pickedPosition && !pickMode && (
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-800">
+                      Pin placed — submit your report →
                     </span>
                   )}
                 </div>
@@ -167,7 +185,7 @@ export default function HomePage() {
                     }}
                     pickedPosition={pickedPosition}
                     pickMode={pickMode}
-                    onTogglePickMode={() => setPickMode((v) => !v)}
+                    onTogglePickMode={togglePickMode}
                   />
                 </Panel>
               </div>

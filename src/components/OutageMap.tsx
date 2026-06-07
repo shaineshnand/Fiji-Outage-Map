@@ -1,6 +1,13 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  CircleMarker,
+  useMapEvents,
+} from "react-leaflet";
 import L from "leaflet";
 import type { MapFeature, MapLayerType } from "@/lib/types";
 import { layerColor, layerLabel } from "@/lib/layers";
@@ -49,7 +56,7 @@ function spreadOverlappingMarkers(features: MapFeature[]): MapFeature[] {
 }
 
 function createPickedIcon() {
-  const s = 22;
+  const s = 28;
   return L.divIcon({
     className: "picked-marker",
     html: `<span style="
@@ -129,15 +136,27 @@ export default function OutageMap({
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         noWrap
       />
-      {pickMode && onMapClick && (
-        <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />
-      )}
+      <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />
       {pickedPosition && isInsideFiji(pickedPosition.lat, pickedPosition.lng) && (
-        <Marker
-          position={[pickedPosition.lat, pickedPosition.lng]}
-          icon={createPickedIcon()}
-          interactive={false}
-        />
+        <>
+          <CircleMarker
+            center={[pickedPosition.lat, pickedPosition.lng]}
+            radius={14}
+            pathOptions={{
+              color: "#0f766e",
+              fillColor: "#14b8a6",
+              fillOpacity: 0.95,
+              weight: 3,
+            }}
+            interactive={false}
+          />
+          <Marker
+            position={[pickedPosition.lat, pickedPosition.lng]}
+            icon={createPickedIcon()}
+            interactive={false}
+            zIndexOffset={1000}
+          />
+        </>
       )}
       {spreadOverlappingMarkers(
         features.filter((f) => isInsideFiji(f.latitude, f.longitude))

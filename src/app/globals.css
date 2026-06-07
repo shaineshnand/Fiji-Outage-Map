@@ -258,6 +258,12 @@ body {
   cursor: crosshair !important;
 }
 
+/* Let map clicks through while placing a report pin */
+.map-pick-mode .leaflet-marker-pane,
+.map-pick-mode .leaflet-shadow-pane {
+  pointer-events: none !important;
+}
+
 /* Leaflet */
 .leaflet-container {
   font-family: var(--font-sans);
