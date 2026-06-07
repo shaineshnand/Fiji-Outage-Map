@@ -2,14 +2,14 @@ import Legend from "./Legend";
 import StatCard from "./StatCard";
 
 interface HeaderProps {
-  plannedActive: number;
-  activeClusters: number;
+  plannedOnMap: number;
+  unplannedOnMap: number;
   totalReports: number;
 }
 
 export default function Header({
-  plannedActive,
-  activeClusters,
+  plannedOnMap,
+  unplannedOnMap,
   totalReports,
 }: HeaderProps) {
   return (
@@ -68,13 +68,13 @@ export default function Header({
 
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
             <StatCard
-              label="Planned active"
-              value={plannedActive}
+              label="Planned (EFL)"
+              value={plannedOnMap}
               variant="planned"
             />
             <StatCard
               label="Unplanned"
-              value={activeClusters}
+              value={unplannedOnMap}
               variant="danger"
             />
             <StatCard

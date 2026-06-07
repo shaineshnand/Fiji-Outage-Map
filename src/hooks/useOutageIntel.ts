@@ -76,34 +76,21 @@ export function useOutageIntel() {
   );
 
   const stats = useMemo(() => {
-    const plannedActive = planned.filter((p) => {
-      const now = Date.now();
-      return (
-        now >= new Date(p.start_time).getTime() &&
-        now <= new Date(p.end_time).getTime()
-      );
-    }).length;
+    const plannedOnMap = mapFeatures
+      .filter((f) => f.kind === "planned" && f.layer === "planned")
+      .filter((f) => isInsideFiji(f.latitude, f.longitude)).length;
 
-    const activeClusters = clusters.filter(
-      (c) => c.layer === "active_reported"
+    const unplannedOnMap = clusters.filter(
+      (c) => c.layer === "active_reported" || c.layer === "unconfirmed"
     ).length;
-    const unconfirmedClusters = clusters.filter(
-      (c) => c.layer === "unconfirmed"
-    ).length;
-
-    const visiblePlanned = mapFeatures.filter((f) => f.kind === "planned");
-    const visibleInFiji = visiblePlanned.filter((f) =>
-      isInsideFiji(f.latitude, f.longitude)
-    );
 
     return {
-      plannedActive,
-      activeClusters,
-      unconfirmedClusters,
+      plannedOnMap,
+      unplannedOnMap,
       totalReports: reports.length,
-      plannedVisibleOnMap: visibleInFiji.length,
+      plannedVisibleOnMap: plannedOnMap,
     };
-  }, [planned, clusters, reports, mapFeatures]);
+  }, [clusters, reports, mapFeatures]);
 
   const toggleLayer = (key: keyof MapLayerFilters) => {
     setLayerFilters((f) => ({ ...f, [key]: !f[key] }));

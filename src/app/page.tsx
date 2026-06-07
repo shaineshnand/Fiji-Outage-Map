@@ -59,8 +59,8 @@ export default function HomePage() {
   return (
     <div className="app-shell">
       <Header
-        plannedActive={stats.plannedActive}
-        activeClusters={stats.activeClusters}
+        plannedOnMap={stats.plannedOnMap}
+        unplannedOnMap={stats.unplannedOnMap}
         totalReports={stats.totalReports}
       />
 
