@@ -1,0 +1,19 @@
+{
+  "name": "efl-crawler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "crawl": "tsx src/index.ts",
+    "crawl:dry": "tsx src/index.ts --dry-run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

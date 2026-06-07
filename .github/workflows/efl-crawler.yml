@@ -1,0 +1,29 @@
+# Sync EFL planned outages every 30 minutes (UTC)
+# Repo → Settings → Secrets and variables → Actions:
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+
+name: EFL Crawler
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install crawler
+        run: npm install --prefix scripts/efl-crawler
+
+      - name: Run crawler
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run crawl --prefix scripts/efl-crawler
