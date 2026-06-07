@@ -91,7 +91,6 @@ export function useOutageIntel() {
       (c) => c.layer === "unconfirmed"
     ).length;
 
-    const plannedFeatures = allMapFeatures.filter((f) => f.kind === "planned");
     const visiblePlanned = mapFeatures.filter((f) => f.kind === "planned");
     const visibleInFiji = visiblePlanned.filter((f) =>
       isInsideFiji(f.latitude, f.longitude)
@@ -102,11 +101,9 @@ export function useOutageIntel() {
       activeClusters,
       unconfirmedClusters,
       totalReports: reports.length,
-      plannedTotal: planned.length,
       plannedVisibleOnMap: visibleInFiji.length,
-      plannedHiddenByFilters: plannedFeatures.length - visiblePlanned.length,
     };
-  }, [planned, clusters, reports, allMapFeatures, mapFeatures]);
+  }, [planned, clusters, reports, mapFeatures]);
 
   const toggleLayer = (key: keyof MapLayerFilters) => {
     setLayerFilters((f) => ({ ...f, [key]: !f[key] }));
