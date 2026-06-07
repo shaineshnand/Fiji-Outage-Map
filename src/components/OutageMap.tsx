@@ -15,6 +15,39 @@ import "leaflet/dist/leaflet.css";
 
 const DEFAULT_ZOOM = 8;
 
+/** Spread markers that share the same coords so each outage is tappable */
+function spreadOverlappingMarkers(features: MapFeature[]): MapFeature[] {
+  const groups = new Map<string, MapFeature[]>();
+
+  for (const feature of features) {
+    const key = `${feature.latitude.toFixed(4)},${feature.longitude.toFixed(4)}`;
+    const group = groups.get(key) ?? [];
+    group.push(feature);
+    groups.set(key, group);
+  }
+
+  const spread: MapFeature[] = [];
+
+  for (const group of groups.values()) {
+    group.forEach((feature, index) => {
+      if (index === 0) {
+        spread.push(feature);
+        return;
+      }
+
+      const angle = (2 * Math.PI * index) / group.length;
+      const radius = 0.012;
+      spread.push({
+        ...feature,
+        latitude: feature.latitude + radius * Math.cos(angle),
+        longitude: feature.longitude + radius * Math.sin(angle),
+      });
+    });
+  }
+
+  return spread;
+}
+
 function createLayerIcon(layer: MapLayerType, size = 18) {
   const color = layerColor(layer);
   const isActive = layer === "active_reported";
@@ -92,9 +125,9 @@ export default function OutageMap({
           </Popup>
         </Marker>
       )}
-      {features
-        .filter((f) => isInsideFiji(f.latitude, f.longitude))
-        .map((f) => {
+      {spreadOverlappingMarkers(
+        features.filter((f) => isInsideFiji(f.latitude, f.longitude))
+      ).map((f) => {
           const layer = f.kind === "planned" ? f.layer : f.layer;
           return (
             <Marker

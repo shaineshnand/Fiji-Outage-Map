@@ -84,7 +84,12 @@ export default function HomePage() {
         )}
 
         <div className="mb-6 hidden animate-fade-up lg:block">
-          <EflDataInfo plannedCount={planned.length} loading={loading} />
+          <EflDataInfo
+            totalScheduled={stats.plannedTotal}
+            visibleOnMap={stats.plannedVisibleOnMap}
+            hiddenByFilters={stats.plannedHiddenByFilters}
+            loading={loading}
+          />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-12">
@@ -145,7 +150,12 @@ export default function HomePage() {
 
             <div className="space-y-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto scroll-area">
               <div className="mb-4 lg:hidden">
-                <EflDataInfo plannedCount={planned.length} loading={loading} />
+                <EflDataInfo
+                  totalScheduled={stats.plannedTotal}
+                  visibleOnMap={stats.plannedVisibleOnMap}
+                  hiddenByFilters={stats.plannedHiddenByFilters}
+                  loading={loading}
+                />
               </div>
 
               <div

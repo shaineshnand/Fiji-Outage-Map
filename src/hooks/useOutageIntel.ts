@@ -6,6 +6,7 @@ import {
   buildMapFeatures,
   filterMapFeatures,
 } from "@/lib/mapFeatures";
+import { isInsideFiji } from "@/lib/fijiBounds";
 import {
   fetchCommunityReports,
   fetchPlannedOutages,
@@ -90,13 +91,22 @@ export function useOutageIntel() {
       (c) => c.layer === "unconfirmed"
     ).length;
 
+    const plannedFeatures = allMapFeatures.filter((f) => f.kind === "planned");
+    const visiblePlanned = mapFeatures.filter((f) => f.kind === "planned");
+    const visibleInFiji = visiblePlanned.filter((f) =>
+      isInsideFiji(f.latitude, f.longitude)
+    );
+
     return {
       plannedActive,
       activeClusters,
       unconfirmedClusters,
       totalReports: reports.length,
+      plannedTotal: planned.length,
+      plannedVisibleOnMap: visibleInFiji.length,
+      plannedHiddenByFilters: plannedFeatures.length - visiblePlanned.length,
     };
-  }, [planned, clusters, reports]);
+  }, [planned, clusters, reports, allMapFeatures, mapFeatures]);
 
   const toggleLayer = (key: keyof MapLayerFilters) => {
     setLayerFilters((f) => ({ ...f, [key]: !f[key] }));
