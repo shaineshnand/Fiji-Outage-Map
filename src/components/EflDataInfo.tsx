@@ -21,7 +21,7 @@ export default function EflDataInfo({ plannedCount, loading }: EflDataInfoProps)
             ? "Updating…"
             : plannedCount > 0
               ? `${plannedCount} on map now`
-              : "Waiting for first sync…"}
+              : "First sync ~15s after server start…"}
         </p>
       </div>
     </div>

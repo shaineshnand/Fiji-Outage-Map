@@ -43,15 +43,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### 4. Automatic EFL sync (every 30 minutes)
+### 4. Automatic EFL sync
 
-Planned outages sync via **GitHub Actions** — not while you run `npm run dev`.
+**Local (`npm run dev`):** Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` — syncs every 30 minutes while the server runs.
 
-1. Push the repo to GitHub.
-2. Add **Actions secrets**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (see [`scripts/efl-crawler/README.md`](scripts/efl-crawler/README.md)).
-3. The workflow runs every **30 minutes**; trigger once manually under **Actions → EFL Crawler** to load data immediately.
+**Vercel Hobby (free):** Vercel cron is **once per day only**, so use a free external scheduler for every 30 minutes:
 
-For a one-off local test: `npm run crawl:efl`
+1. Deploy to [Vercel](https://vercel.com) and add env vars:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `CRON_SECRET` — any long random string you make up
+2. Sign up at [cron-job.org](https://cron-job.org) (free).
+3. Create a cron job:
+   - **URL:** `https://YOUR-APP.vercel.app/api/cron/efl`
+   - **Schedule:** every **30 minutes**
+   - **Request header:** `Authorization` = `Bearer YOUR_CRON_SECRET` (same as `CRON_SECRET` in Vercel)
+4. Run once manually to test — you should get JSON like `{ "ok": true, "upserted": 22, ... }`.
+
+`vercel.json` also includes a **daily backup** cron. First deploy may take ~2 minutes to geocode; later runs reuse saved coordinates and finish faster.
+
+Manual run anytime: `npm run crawl:efl`
 
 ## Docs
 

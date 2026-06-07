@@ -68,16 +68,19 @@ Live sync: upsert rows, remove outages no longer listed on EFL.
 
 ## Automatic sync (every 30 minutes)
 
-This repo includes **GitHub Actions** (`.github/workflows/efl-crawler.yml`) that runs the crawler **every 30 minutes** once configured:
+**Default:** The Next.js server runs the crawler automatically (`src/instrumentation.ts`) when:
 
-1. Push this repo to **GitHub**
-2. **Settings → Secrets and variables → Actions → New repository secret**
-   - `SUPABASE_URL` — same value as `NEXT_PUBLIC_SUPABASE_URL` in `.env.local`
-   - `SUPABASE_SERVICE_ROLE_KEY` — from Supabase → Project Settings → API → service_role
-3. **Actions** tab → enable workflows if prompted
-4. Optional: **Actions → EFL Crawler → Run workflow** to test immediately
+- `SUPABASE_SERVICE_ROLE_KEY` is in `.env.local`
+- You run `npm run dev` or `npm run start`
 
-The map app reads Supabase only; it does not run the crawler. After secrets are set, planned outages stay fresh without manual runs.
+Set `EFL_CRON_ENABLED=false` to turn off auto-sync.
+
+**Vercel Hobby (free):** Use [cron-job.org](https://cron-job.org) to call `GET /api/cron/efl` every 30 minutes with header `Authorization: Bearer <CRON_SECRET>`. Vercel’s built-in cron is daily-only on the free plan.
+
+**Other:**
+
+- CLI: `npm run crawl:efl` (one-off)
+- Local server: auto-sync via `instrumentation.ts` (not on Vercel)
 
 Respect Nominatim: **1 geocode per second** (built into the crawler).
 

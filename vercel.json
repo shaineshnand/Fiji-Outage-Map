@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/efl",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "functions": {
+    "src/app/api/cron/efl/route.ts": {
+      "maxDuration": 300
+    }
+  }
+}
