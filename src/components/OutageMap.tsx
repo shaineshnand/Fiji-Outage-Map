@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -53,6 +54,50 @@ function spreadOverlappingMarkers(features: MapFeature[]): MapFeature[] {
   }
 
   return spread;
+}
+
+function createSubmittedIcon() {
+  const s = 26;
+  return L.divIcon({
+    className: "outage-marker",
+    html: `<span class="marker-pulse" style="
+      position:relative;display:block;width:${s}px;height:${s}px;border-radius:50%;
+      background:#ea580c;border:3px solid #fff;color:#ea580c;
+      box-shadow:0 2px 10px rgba(234,88,12,.45);
+    "></span>`,
+    iconSize: [s, s],
+    iconAnchor: [s / 2, s / 2],
+  });
+}
+
+function SubmittedReportMarker({
+  lat,
+  lng,
+}: {
+  lat: number;
+  lng: number;
+}) {
+  const markerRef = useRef<L.Marker>(null);
+
+  useEffect(() => {
+    markerRef.current?.openPopup();
+  }, [lat, lng]);
+
+  return (
+    <Marker
+      ref={markerRef}
+      position={[lat, lng]}
+      icon={createSubmittedIcon()}
+      zIndexOffset={2000}
+    >
+      <Popup>
+        <span className="map-popup-title">Your report</span>
+        <p className="map-popup-meta mt-1 text-orange-700">
+          Just submitted — orange pulsing dot
+        </p>
+      </Popup>
+    </Marker>
+  );
 }
 
 function createPickedIcon() {
@@ -109,6 +154,7 @@ interface OutageMapProps {
   features: MapFeature[];
   pickMode?: boolean;
   pickedPosition?: { lat: number; lng: number } | null;
+  submittedReport?: { lat: number; lng: number } | null;
   onMapClick?: (lat: number, lng: number) => void;
 }
 
@@ -116,6 +162,7 @@ export default function OutageMap({
   features,
   pickMode,
   pickedPosition,
+  submittedReport,
   onMapClick,
 }: OutageMapProps) {
   const fijiBounds = getFijiLatLngBounds();
@@ -158,6 +205,13 @@ export default function OutageMap({
           />
         </>
       )}
+      {submittedReport &&
+        isInsideFiji(submittedReport.lat, submittedReport.lng) && (
+          <SubmittedReportMarker
+            lat={submittedReport.lat}
+            lng={submittedReport.lng}
+          />
+        )}
       {spreadOverlappingMarkers(
         features.filter((f) => isInsideFiji(f.latitude, f.longitude))
       ).map((f) => {

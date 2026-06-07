@@ -54,6 +54,10 @@ export default function HomePage() {
     lat: number;
     lng: number;
   } | null>(null);
+  const [submittedReport, setSubmittedReport] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   function togglePickMode() {
     setPickMode((active) => {
@@ -125,6 +129,11 @@ export default function HomePage() {
                       Pin placed — submit your report →
                     </span>
                   )}
+                  {submittedReport && (
+                    <span className="rounded-full bg-orange-100 px-3 py-1 font-semibold text-orange-800">
+                      Your report is on the map (orange dot)
+                    </span>
+                  )}
                 </div>
               </div>
               <div
@@ -134,8 +143,10 @@ export default function HomePage() {
                   features={mapFeatures}
                   pickMode={pickMode}
                   pickedPosition={pickedPosition}
+                  submittedReport={submittedReport}
                   onMapClick={(lat, lng) => {
                     if (!isInsideFiji(lat, lng)) return;
+                    setSubmittedReport(null);
                     setPickedPosition({ lat, lng });
                     setPickMode(false);
                   }}
@@ -178,10 +189,15 @@ export default function HomePage() {
                   icon={<ReportIcon />}
                 >
                   <ReportForm
-                    onSuccess={() => {
-                      refresh();
+                    onSuccess={async ({ lat, lng }) => {
+                      setSubmittedReport({ lat, lng });
                       setPickedPosition(null);
                       setPickMode(false);
+                      await refresh();
+                      mapSectionRef.current?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
                     }}
                     pickedPosition={pickedPosition}
                     pickMode={pickMode}

@@ -7,7 +7,7 @@ import { formatMapPinLabel } from "@/lib/format";
 import { MapPinIcon, PlusIcon } from "./icons";
 
 interface ReportFormProps {
-  onSuccess: () => void;
+  onSuccess: (coords: { lat: number; lng: number }) => void | Promise<void>;
   pickedPosition: { lat: number; lng: number } | null;
   pickMode: boolean;
   onTogglePickMode: () => void;
@@ -70,8 +70,8 @@ export default function ReportForm({
 
       setLocation("");
       setDescription("");
-      setMessage("Thank you — your report is on the map.");
-      onSuccess();
+      setMessage("Thank you — look for the orange dot on the map.");
+      await onSuccess({ lat, lng });
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Could not submit report.");
     } finally {
