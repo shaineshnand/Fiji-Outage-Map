@@ -48,6 +48,20 @@ function spreadOverlappingMarkers(features: MapFeature[]): MapFeature[] {
   return spread;
 }
 
+function createPickedIcon() {
+  const s = 22;
+  return L.divIcon({
+    className: "picked-marker",
+    html: `<span style="
+      display:block;width:${s}px;height:${s}px;border-radius:50%;
+      background:#0d9488;border:3px solid #fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.28);
+    "></span>`,
+    iconSize: [s, s],
+    iconAnchor: [s / 2, s / 2],
+  });
+}
+
 function createLayerIcon(layer: MapLayerType, size = 18) {
   const color = layerColor(layer);
   const isActive = layer === "active_reported";
@@ -119,7 +133,10 @@ export default function OutageMap({
         <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />
       )}
       {pickedPosition && isInsideFiji(pickedPosition.lat, pickedPosition.lng) && (
-        <Marker position={[pickedPosition.lat, pickedPosition.lng]}>
+        <Marker
+          position={[pickedPosition.lat, pickedPosition.lng]}
+          icon={createPickedIcon()}
+        >
           <Popup>
             <span className="map-popup-title">Selected location</span>
           </Popup>

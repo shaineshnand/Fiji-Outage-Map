@@ -305,7 +305,8 @@ body {
   line-height: 1.5;
 }
 
-.outage-marker {
+.outage-marker,
+.picked-marker {
   background: transparent !important;
   border: none !important;
 }
