@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { insertCommunityReport } from "@/lib/supabase";
-import { geocodeLocation } from "@/lib/geocode";
 import { formatMapPinLabel } from "@/lib/format";
 import { MapPinIcon, PlusIcon } from "./icons";
 
@@ -23,7 +22,6 @@ export default function ReportForm({
   pickMode,
   onTogglePickMode,
 }: ReportFormProps) {
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -31,36 +29,17 @@ export default function ReportForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
+
+    if (!pickedPosition) {
+      setMessage("Pick a point on the map first.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      let lat = pickedPosition?.lat;
-      let lng = pickedPosition?.lng;
-      let locationName = location.trim();
-
-      if (!locationName && !pickedPosition) {
-        setMessage("Enter a location or pick a point on the map.");
-        return;
-      }
-
-      if (lat == null || lng == null) {
-        if (!locationName) {
-          setMessage("Enter a location or pick a point on the map.");
-          return;
-        }
-        const geo = await geocodeLocation(locationName);
-        if (!geo) {
-          setMessage("Location not found in Fiji. Try another name or use the map.");
-          return;
-        }
-        lat = geo.lat;
-        lng = geo.lng;
-        if (!locationName) locationName = geo.displayName;
-      }
-
-      if (!locationName) {
-        locationName = formatMapPinLabel(lat, lng);
-      }
+      const { lat, lng } = pickedPosition;
+      const locationName = formatMapPinLabel(lat, lng);
 
       const saved = await insertCommunityReport({
         location: locationName,
@@ -72,7 +51,6 @@ export default function ReportForm({
         longitude: lng,
       });
 
-      setLocation("");
       setDescription("");
       setMessage("Thank you — your pin stays on the map (even after refresh).");
       await onSuccess({ id: saved.id, lat, lng });
@@ -88,17 +66,10 @@ export default function ReportForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="location" className="field-label">
-          Where is the outage?
-        </label>
-        <input
-          id="location"
-          type="text"
-          placeholder="e.g. Nasinu, Suva, Nadi"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="input"
-        />
+        <p className="field-label">Where is the outage?</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Tap the button below, then tap the map to mark the spot.
+        </p>
       </div>
 
       <button
@@ -131,7 +102,11 @@ export default function ReportForm({
         />
       </div>
 
-      <button type="submit" disabled={submitting} className="btn btn-primary btn-block">
+      <button
+        type="submit"
+        disabled={submitting || !pickedPosition}
+        className="btn btn-primary btn-block"
+      >
         {submitting ? (
           <>
             <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
