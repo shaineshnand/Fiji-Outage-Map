@@ -93,7 +93,7 @@ function SubmittedReportMarker({
       <Popup>
         <span className="map-popup-title">Your report</span>
         <p className="map-popup-meta mt-1 text-orange-700">
-          Just submitted — orange pulsing dot
+          Your report — exact pin location
         </p>
       </Popup>
     </Marker>

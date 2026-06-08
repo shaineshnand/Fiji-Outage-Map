@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  clearLastReportHighlight,
+  loadLastReportHighlight,
+  saveLastReportHighlight,
+} from "@/lib/lastReportHighlight";
 import { useOutageIntel } from "@/hooks/useOutageIntel";
 import OutageMap from "@/components/MapLoader";
 import ReportForm from "@/components/ReportForm";
@@ -55,9 +60,17 @@ export default function HomePage() {
     lng: number;
   } | null>(null);
   const [submittedReport, setSubmittedReport] = useState<{
+    id: string;
     lat: number;
     lng: number;
   } | null>(null);
+
+  useEffect(() => {
+    const saved = loadLastReportHighlight();
+    if (saved) {
+      setSubmittedReport({ id: saved.id, lat: saved.lat, lng: saved.lng });
+    }
+  }, []);
 
   function togglePickMode() {
     setPickMode((active) => {
@@ -131,7 +144,7 @@ export default function HomePage() {
                   )}
                   {submittedReport && (
                     <span className="rounded-full bg-orange-100 px-3 py-1 font-semibold text-orange-800">
-                      Your report is on the map (orange dot)
+                      Your report pin is highlighted on the map
                     </span>
                   )}
                 </div>
@@ -146,6 +159,7 @@ export default function HomePage() {
                   submittedReport={submittedReport}
                   onMapClick={(lat, lng) => {
                     if (!isInsideFiji(lat, lng)) return;
+                    clearLastReportHighlight();
                     setSubmittedReport(null);
                     setPickedPosition({ lat, lng });
                     setPickMode(false);
@@ -189,8 +203,10 @@ export default function HomePage() {
                   icon={<ReportIcon />}
                 >
                   <ReportForm
-                    onSuccess={async ({ lat, lng }) => {
-                      setSubmittedReport({ lat, lng });
+                    onSuccess={async ({ id, lat, lng }) => {
+                      const highlight = { id, lat, lng };
+                      saveLastReportHighlight(highlight);
+                      setSubmittedReport(highlight);
                       setPickedPosition(null);
                       setPickMode(false);
                       await refresh();

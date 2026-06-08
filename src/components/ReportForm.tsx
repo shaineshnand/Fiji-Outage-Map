@@ -7,7 +7,11 @@ import { formatMapPinLabel } from "@/lib/format";
 import { MapPinIcon, PlusIcon } from "./icons";
 
 interface ReportFormProps {
-  onSuccess: (coords: { lat: number; lng: number }) => void | Promise<void>;
+  onSuccess: (report: {
+    id: string;
+    lat: number;
+    lng: number;
+  }) => void | Promise<void>;
   pickedPosition: { lat: number; lng: number } | null;
   pickMode: boolean;
   onTogglePickMode: () => void;
@@ -58,7 +62,7 @@ export default function ReportForm({
         locationName = formatMapPinLabel(lat, lng);
       }
 
-      await insertCommunityReport({
+      const saved = await insertCommunityReport({
         location: locationName,
         issue_type: "no_power",
         time_reported: new Date().toISOString(),
@@ -70,8 +74,8 @@ export default function ReportForm({
 
       setLocation("");
       setDescription("");
-      setMessage("Thank you — look for the orange dot on the map.");
-      await onSuccess({ lat, lng });
+      setMessage("Thank you — your pin stays on the map (even after refresh).");
+      await onSuccess({ id: saved.id, lat, lng });
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Could not submit report.");
     } finally {
